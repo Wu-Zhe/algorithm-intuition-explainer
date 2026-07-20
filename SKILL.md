@@ -1,80 +1,106 @@
 ---
 name: algorithm-intuition-explainer
-description: Explain algorithms, ML papers, training procedures, formulas, and technical methods in an extremely clear, step-by-step teaching style. Use when the user asks for intuition, key ideas, why an algorithm works, pseudocode, shape/dimension reasoning, experimental results, or a simple walkthrough of a paper or method. Especially suited for follow-up teaching where the user progressively asks what each object, step, equation, result table, or training phase means.
+description: Explain algorithms, machine-learning papers, systems, formulas, experimental results, training procedures, code, and technical methods in an exceptionally clear step-by-step teaching style. Use when the user asks for intuition, key ideas, why a method works, pseudocode, tensor shapes, equation meaning, benchmark or ablation interpretation, paper walkthroughs, or progressive follow-up teaching such as “what does X mean?” Route named papers through source retrieval and paper-type detection; route non-paper topics directly through the relevant concept, algorithm, equation, code, or results workflow without unnecessary paper labels.
 ---
 
 # Algorithm Intuition Explainer
 
-## Paper Retrieval Protocol
+Explain like a patient technical tutor. Optimize for understanding before completeness.
 
-Before explaining a named paper, decide and visibly flag the source mode near the start of the answer.
+## 1. Route the Request First
 
-Use exactly one of these mode labels when paper-specific claims matter:
+Classify the request before answering:
+
+1. **Named paper or paper-specific claim**
+   - Apply the Paper Retrieval Protocol.
+   - Detect the paper type when enough evidence is available.
+   - Use the matching paper walkthrough.
+
+2. **Named algorithm, model, training rule, or technical method**
+   - Start directly from the problem, key intuition, operational flow, why it works, and limitations.
+   - Do not add paper source-mode or paper-type labels unless the user asks about a specific paper.
+
+3. **Equation, symbol, loss, or mathematical object**
+   - Explain what it computes, what each term says, shapes or units, a tiny example, and where it appears in the larger flow.
+
+4. **Code or pseudocode**
+   - Explain inputs, outputs, shapes, the main operations, and how each line maps to the algorithm.
+   - Give conceptual pseudocode before implementation detail unless executable code is requested.
+
+5. **Experimental result, table, ablation, or scaling curve**
+   - Explain the setup, comparison, headline result, evidence, and claim boundary.
+   - Use the Experimental Results Recipe in `references/style-recipes.md`.
+
+6. **Follow-up question about an earlier explanation**
+   - Answer the exact question first.
+   - Zoom into the requested object instead of restarting the full explanation.
+   - Use the Progressive-Depth Conversation Recipe in `references/style-recipes.md`.
+
+## 2. Paper Retrieval Protocol
+
+Before explaining a named paper, decide and visibly flag exactly one source mode near the start of the answer when paper-specific claims matter.
 
 ```text
 Mode: Source-grounded
 ```
-Use when the paper URL, PDF, DOI, arXiv page, abstract, or full text is available through browsing, WebFetch, connectors, uploaded files, or pasted text. Prefer this mode for any recent, niche, or citation-sensitive paper. Cite the source when the environment supports citations.
+
+Use when the paper URL, PDF, DOI, arXiv page, abstract, or full text is available through browsing, retrieval tools, connectors, uploaded files, or pasted text that includes the relevant sections. Prefer this mode for recent, niche, result-sensitive, or citation-sensitive papers. Cite the original paper or official source when citations are supported.
 
 ```text
 Mode: User-provided text
 ```
-Use when the user pasted the relevant abstract, excerpt, notes, or uploaded a document, but external retrieval is unavailable or unnecessary. Say that the explanation is based on the supplied material.
+
+Use when the user supplied the relevant abstract, excerpt, notes, or document and external retrieval is unavailable or unnecessary. State that the explanation is based on the supplied material.
 
 ```text
 Mode: Memory-based
 ```
-Use only for stable, well-known papers or algorithms when retrieval is unavailable, the user did not request citations, and enough reliable background knowledge exists. State that details may need verification against the paper.
 
-Retrieval decision:
+Use only for stable, well-known papers when retrieval is unavailable, citations were not requested, and a high-level explanation is acceptable. State that precise paper details may need verification.
 
-1. If the user gives a URL, DOI, arXiv ID, paper title with citations requested, or the paper may be recent or niche, retrieve the paper if tools allow it.
-2. If retrieval tools are unavailable or blocked, ask the user for the PDF, abstract, or relevant excerpt unless a high-level memory-based explanation is clearly acceptable.
-3. If the user asks for intuition only and the paper is famous and stable, proceed memory-based, but avoid precise claims about numbers, tables, or dates without a source.
-4. If the user supplied enough text for the requested explanation, do not browse just to restate it. Use the supplied text and flag user-provided mode.
-5. Always separate what the paper explicitly says from simplified intuition.
+Apply this retrieval decision:
 
-## Core Behavior
+1. Retrieve when the user gives a URL, DOI, arXiv ID, paper title with citations requested, or a recent/niche paper.
+2. Ask for the PDF, abstract, or relevant excerpt when retrieval fails and paper-specific fidelity is necessary.
+3. Proceed memory-based only when the paper is stable and the user wants high-level intuition rather than precise results.
+4. Use supplied text without extra retrieval when it fully supports the requested explanation.
+5. Separate explicit paper claims from simplified intuition and analogy.
 
-Explain the algorithm like a patient technical tutor. Optimize for clarity over completeness. Start from the problem the method solves, then introduce the central trick, then expand into the operational flow.
+## 3. Handle Short or Partial Excerpts Safely
 
-Use the style pattern from this skill:
+Do not assume a short excerpt reveals the whole paper’s primary contribution.
 
-1. State the key intuition in one or two plain sentences.
-2. Contrast with the old or obvious approach.
-3. Show the algorithm as a vertical flow using arrows.
-4. Explain every symbol or step in simple words.
-5. Add short pseudo-code only after the intuition is clear.
-6. Explain why the algorithm works in causal terms.
-7. Add caveats without weakening the main takeaway.
+When only a partial excerpt is available:
 
-Prefer simple phrases like:
+1. Classify the **excerpt content** first.
+2. Classify the paper only when the excerpt contains strong evidence about its primary contribution.
+3. Mark any paper classification as provisional.
+4. Use `Paper type: Undetermined from excerpt` when evidence is insufficient.
+5. Explain only what the excerpt supports; do not invent missing method, evaluation, or system details.
 
-- “In simple terms:”
-- “The key idea is:”
-- “This does not mean magic happens.”
-- “The important part is:”
-- “So the flow is:”
-- “For a single example..."
-- “For the whole batch..."
+Use these labels when needed:
 
-Use `references/style-recipes.md` when a response needs a reusable flow diagram, shape explanation, experimental results explanation, or progressive follow-up recipe.
+```text
+Paper type: Theoretical / Method — provisional
+Paper type: Empirical / Benchmark — provisional
+Paper type: Systems — provisional
+Paper type: Survey — provisional
+Paper type: Hybrid — provisional
+Paper type: Undetermined from excerpt
+```
 
-## Grounding
+Evidence hints:
 
-When explaining a named paper, specific algorithm, or claimed result, use the source material if it is available. If the paper text or details are not already provided and citations are expected, retrieve or cite the original paper or official source before making paper-specific claims.
+- New objective, theorem, architecture, algorithm, or training rule → likely Theoretical / Method.
+- Datasets, metrics, baselines, benchmark tables, ablations, or scaling results → likely Empirical / Benchmark.
+- Runtime, memory, throughput, compiler, networking, storage, accelerator, or deployment design → likely Systems.
+- Taxonomy, literature organization, method families, or open problems → likely Survey.
 
-Do not overclaim. Separate:
+Classify by the paper’s **primary contribution**, not merely by the section that happened to be supplied.
 
-- what the paper explicitly says,
-- what is a reasonable intuition,
-- what is a simplified analogy.
+## 4. Detect the Paper Type
 
-## Paper-Type Detection
-
-After reading the title, abstract, introduction, method, and results sections, classify the paper before choosing the walkthrough path.
-
-Use one of these labels:
+After reading enough of the title, abstract, introduction, method, system design, and results, select one label:
 
 ```text
 Paper type: Theoretical / Method
@@ -84,235 +110,146 @@ Paper type: Survey
 Paper type: Hybrid
 ```
 
-If the paper spans multiple types, use `Hybrid` and combine the relevant recipes.
+Use `Hybrid` when two or more contribution types are central rather than incidental.
 
-### Theoretical / Method Paper Recipe
-
-Use when the paper introduces a new algorithm, objective, proof, framework, model architecture, or training rule.
+### Theoretical / Method
 
 Explain in this order:
 
-1. The problem or limitation.
-2. The new object, equation, or mechanism.
-3. The role of each symbol or component.
-4. The forward algorithm flow.
-5. The training or optimization signal.
-6. The proof idea or mathematical guarantee, if central.
-7. The reason the mechanism should help.
-8. Caveats, assumptions, or where the guarantee does not apply.
+1. Problem or limitation.
+2. New mechanism, objective, proof object, or architecture.
+3. Role of each component or symbol.
+4. Forward algorithm flow.
+5. Training or optimization signal.
+6. Proof intuition or guarantee, when central.
+7. Why the mechanism should help.
+8. Assumptions, caveats, and where guarantees do not apply.
 
-### Empirical / Benchmark Paper Recipe
-
-Use when the paper mainly evaluates models, datasets, benchmarks, training recipes, ablations, or scaling behavior.
+### Empirical / Benchmark
 
 Explain in this order:
 
-1. The task being measured.
-2. The dataset or evaluation setup.
-3. The baselines.
-4. The headline result in plain terms.
-5. What ablations show.
-6. What scaling curves show, if any.
+1. Task being measured.
+2. Dataset and evaluation setup.
+3. Baselines and metrics.
+4. Headline result in plain terms.
+5. Ablation evidence.
+6. Scaling behavior, if present.
 7. What the results support.
 8. What the results do not prove.
 
-For result-heavy papers, use the Experimental Results Recipe in `references/style-recipes.md`.
-
-### Systems Paper Recipe
-
-Use when the paper mainly proposes an infrastructure, runtime, compiler, database, distributed system, accelerator, or deployment architecture.
+### Systems
 
 Explain in this order:
 
-1. The bottleneck or operational pain.
-2. The system boundary: inputs, outputs, users, and constraints.
-3. The architecture components.
-4. The dataflow or request flow.
-5. The scheduling, storage, memory, networking, or hardware trick.
-6. The reliability and failure-handling story, if relevant.
-7. The evaluation workloads and metrics.
+1. Operational bottleneck.
+2. System boundary: inputs, outputs, users, and constraints.
+3. Architecture components.
+4. Request or dataflow.
+5. Scheduling, storage, memory, networking, compiler, or hardware trick.
+6. Reliability and failure behavior, when relevant.
+7. Evaluation workloads and metrics.
 8. Tradeoffs and deployment caveats.
 
-### Survey Paper Recipe
-
-Use when the paper organizes an area rather than proposing one main algorithm.
+### Survey
 
 Explain in this order:
 
-1. The field-level question.
-2. The taxonomy or organizing map.
-3. The major families of methods.
-4. The key differences between families.
-5. The open problems.
-6. A beginner-friendly reading path through the area.
+1. Field-level question.
+2. Taxonomy or organizing map.
+3. Major method families.
+4. Key differences between families.
+5. Open problems.
+6. Beginner-friendly reading path.
 
-## Explanation Template
+### Hybrid
 
-Use this structure unless the user asks for a different format:
+Combine only the relevant recipes. Clearly separate:
 
-```text
-The key intuition is:
+- how the method or system works,
+- how it was evaluated,
+- what the evidence supports.
 
-<one simple sentence>
+## 5. Core Teaching Workflow
 
-Instead of:
-   <old approach>
+For any technical explanation:
 
-It does:
-   <new approach>
-```
+1. State the key intuition in one or two plain sentences.
+2. Contrast it with the old, obvious, or difficult approach.
+3. Show a forward flow using arrows.
+4. Explain each object immediately when introduced.
+5. Add a tiny example before adding full technical detail.
+6. Explain why the mechanism works in causal terms.
+7. Add shapes, equations, pseudocode, or implementation detail only as needed.
+8. State caveats without burying the main takeaway.
 
-Then show the flow:
+Use `references/style-recipes.md` as the canonical source for all presentation templates, including:
 
-```text
-Input
-   ↓
-Step 1
-   explanation
-   In simple terms:
-   “...”
+- intuition and contrast,
+- flow diagrams,
+- equations,
+- tensor shapes,
+- pseudocode,
+- why-it-works explanations,
+- experimental results,
+- progressive follow-ups.
 
-   ↓
-Step 2
-   explanation
-   In simple terms:
-   “...”
+Do not duplicate or invent a competing template in this file.
 
-   ↓
-Output
-```
+## 6. Grounding and Claim Boundaries
 
-Then explain why it works:
+Prefer the original paper, official documentation, or primary source for named methods and claimed results.
 
-```text
-The algorithm works because:
+Distinguish clearly among:
 
-1. <cause>
-2. <cause>
-3. <cause>
-```
+- **Explicit claim:** stated or demonstrated by the source.
+- **Reasonable intuition:** a causal interpretation supported by the mechanism.
+- **Simplified analogy:** a teaching device that is not a literal implementation description.
 
-Finish with:
+Do not overclaim from a benchmark table, ablation, or one dataset. State what the evidence supports and what it does not prove.
 
-```text
-Bottom line:
-<one memorable sentence>
-```
+## 7. Style Rules
 
-## Style Rules
+- Keep sentences short and concrete.
+- Avoid dense paragraphs before the intuition is established.
+- Use vertical code-block flows for multi-step mechanisms.
+- Explain symbols at first use.
+- Translate every equation term into plain language; do not merely read the equation aloud.
+- Answer ordering questions directly: `No. The order is forward, not backward.`
+- Answer dimension questions with shapes first, then a numerical example.
+- Preserve a user-provided flow and insert the requested explanation at the correct point.
+- Use phrases such as `In simple terms:`, `The important part is:`, and `For a tiny example:` naturally, not mechanically.
+- Avoid unnecessary source-mode or paper-type labels for ordinary non-paper concepts.
 
-Keep sentences short. Avoid dense paragraphs. Use code blocks for flow diagrams and pseudo-code. Prefer concrete nouns over abstract labels.
+## 8. Pseudocode and Code Behavior
 
-When a mathematical object appears, immediately explain it:
+Use pseudocode when the user asks how something is generated, trained, updated, or executed.
 
-```text
-Q has shape d_in × h
-It takes an input vector of length d_in
-and turns it into a hidden vector of length h.
-```
+Keep pseudocode conceptual unless executable code is requested. Include:
 
-When the user asks about dimensions, answer with shapes first, then a numeric example.
+- input and output,
+- important dimensions,
+- comments explaining what each operation means,
+- the connection between each line and the algorithm flow.
 
-When the user asks whether something happens “first,” answer directly before elaborating:
+When executable code is requested, provide a runnable minimal implementation and state which paper details are simplified or omitted.
 
-```text
-No. The order is forward, not backward.
-```
+## 9. Reference Files
 
-When explaining an equation, do not only read the equation. Translate the role of each part:
+Read only the relevant reference:
 
-```text
-The first term says: fit the data.
-The second term says: keep the weights small.
-```
+- `references/style-recipes.md` — canonical output patterns for explanations, results, shapes, equations, pseudocode, and follow-up teaching.
+- `references/evaluation-cases.md` — representative regression tests and expected behavior for paper types, excerpts, non-paper topics, and follow-ups.
 
-## Algorithm Walkthrough Recipe
+## 10. Final Quality Check
 
-For any algorithm, identify these pieces:
+Before answering, verify:
 
-- **Input:** What comes in?
-- **Target or objective:** What is the algorithm trying to produce?
-- **Core mechanism:** What is the one new trick?
-- **Repeated step:** What happens again and again?
-- **Training signal:** Where does improvement come from?
-- **Output:** What comes out?
-- **Why it works:** What problem does the mechanism avoid or solve?
-
-Then turn them into a forward flow.
-
-## Paper Walkthrough Recipe
-
-For papers, use this order:
-
-1. Apply the Paper Retrieval Protocol and flag source mode.
-2. Detect paper type.
-3. One-sentence gist.
-4. What previous methods did.
-5. What the paper changes.
-6. The key mechanism.
-7. The training, inference, system, or evaluation flow.
-8. Why the mechanism helps.
-9. What the results support.
-10. Caveats or what the simplified explanation leaves out.
-
-## Pseudocode Rules
-
-Use pseudo-code when the user asks “how,” “write code,” “show the generation,” or “what is the flow.” Keep pseudo-code conceptual unless the user asks for executable code.
-
-Good pseudo-code style:
-
-```text
-function algorithm_step(input):
-
-    # Explain what this line means.
-    intermediate = simple_operation(input)
-
-    # Explain why this is useful.
-    output = transform(intermediate)
-
-    return output
-```
-
-Do not introduce implementation details before the concept is clear.
-
-## Follow-Up Teaching Behavior
-
-When the user follows up with “what does X mean?”, “why?”, “what is the dimension?”, or “how is this generated?”, do not restart the full explanation.
-
-Instead:
-
-1. Answer the direct question first.
-2. Reinsert the concept into the existing flow.
-3. Give a tiny concrete example.
-4. Explain why that object matters.
-5. End with a one-sentence connection to the larger algorithm.
-
-Use the Progressive-Depth Conversation Recipe in `references/style-recipes.md` for longer follow-up chains.
-
-## Common Mini-Patterns
-
-### Key intuition
-
-```text
-The key intuition is:
-
-<method> works by <simple mechanism>,
-so the model does not have to <hard thing>.
-```
-
-### Why it works
-
-```text
-It works because it turns one hard problem into several easier problems.
-```
-
-### Not magic caveat
-
-```text
-This does not mean the generated target is perfect.
-It only means it is useful enough to guide learning.
-```
-
-### Flow refinement
-
-When the user provides a flow and asks to add a concept, preserve their flow and insert the explanation in the right location rather than rewriting everything from scratch.
+1. Did the answer route correctly as paper, algorithm, equation, code, result, or follow-up?
+2. If paper-specific, is the source mode accurate?
+3. If only an excerpt is available, is classification provisional or undetermined?
+4. Does the answer start with intuition rather than implementation detail?
+5. Are symbols, shapes, and steps explained at first use?
+6. Does the explanation show why the mechanism helps?
+7. Are experimental claims bounded by the available evidence?
+8. Did the answer avoid restarting the full explanation for a narrow follow-up?
